@@ -1,4 +1,4 @@
-// file berisi fungsi untuk membaca variabel lingkungan dari file .env menggunakan pustaka godotenv
+// file berisi fungsi untuk membaca variabel lingkungan dari file .env menggunakan library godotenv
 
 package config
 import (
@@ -6,9 +6,9 @@ import (
 	"os" //memberikan akses ke fungsi-fungsi sistem operasi, termasuk untuk mengakses variabel lingkungan.
 	"github.com/joho/godotenv" //untuk membaca nilai variabel lingkungan dari file .env.
 )
-// menerima satu parameter key yang merupakan kunci untuk variabel lingkungan yang ingin diambil nilainya.
+// key sebagai kunci variabel lingkungan yang ingin diambil nilainya.
 func Config(key string) string {
-	// Fungsi ini mencoba membaca variabel lingkungan dari file .env di direktori yang sama dengan file sumber kode. Jika file .env tidak ditemukan atau terjadi kesalahan saat membacanya, maka sebuah pesan kesalahan dicetak menggunakan fmt.Print.
+	// membaca variabel lingkungan dari file .env
 	err := godotenv.Load(".env")
 	if err != nil {
 		fmt.Print("Error loading .env file")

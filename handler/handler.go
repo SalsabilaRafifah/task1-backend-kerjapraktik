@@ -3,51 +3,41 @@
 package handler
 
 import (
-	"github.com/SalsabilaRafifah/go-fiber-postgres/database" // menyediakan akses ke database
-	"github.com/SalsabilaRafifah/go-fiber-postgres/model"    // definisi struktur data
-	"github.com/gofiber/fiber/v2"                            // framework web
-	"github.com/google/uuid"                                 // menangani UUID
+	"github.com/SalsabilaRafifah/go-fiber-postgres/database"
+	"github.com/SalsabilaRafifah/go-fiber-postgres/model"
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
-// c adalah objek konteks Fiber yang digunakan untuk memproses informasi permintaan dan mengirimkan respons balik ke klien.
-// CreateLecturer: Fungsi untuk membuat dosen baru dalam database
+// c sbagai objek konteks Fiber untuk memproses informasi permintaan dan mengirimkan respons balik ke klien.
+// Fungsi untuk membuat dosen baru dalam database
 func CreateLecturer(c *fiber.Ctx) error {
-	// Mengambil instance database dari package database
 	db := database.DB.Db
-	// Membuat instance baru dari struktur data model.Lecturer yang akan digunakan untuk menyimpan data dosen dari permintaan.
 	lecturer := new(model.Lecturer)
-	// Membaca body request yang dikirim oleh klien dan mengonversinya menjadi objek Lecturer
 	err := c.BodyParser(lecturer)
-	// Jika parsing body request gagal, mengembalikan respons error dengan status 500.
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// Membuat entitas dosen baru dalam database menggunakan objek model.Lecturer
 	err = db.Create(&lecturer).Error
-	// Jika operasi penciptaan dosen gagal, mengembalikan respons error dengan status 500.
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create lecturer", "data": err})
 	}
-	// Jike berhasil, mengembalikan response sukses dengan status 201 dan data dosen yang baru dibuat
 	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "Lecturer has created", "data": lecturer})
 }
 
-// Get All Lecturers: Fungsi untuk mendapatkan semua dosen dari database
+// Fungsi untuk mendapatkan semua dosen dari database
 func GetAllLecturers(c *fiber.Ctx) error {
-	// Mendapatkan akses ke instance database dan membuat variabel untuk menyimpan daftar dosen.
 	db := database.DB.Db
 	var lecturers []model.Lecturer
-	// Mengambil semua dosen dari database menggunakan db.Find.
 	db.Find(&lecturers)
-	// Jika tidak ada dosen yang ditemukan, mengembalikan respons error dengan status 404.
 	if len(lecturers) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturers not found", "data": nil})
 	}
-	// Jika berhasil, mengembalikan respons sukses dengan status 200 dan data dosen yang ditemukan.
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturers Found", "data": lecturers})
 }
 
-// GetSingleLecturer: Fungsi untuk mendapatkan satu dosen berdasarkan ID dari database
+// Fungsi untuk mendapatkan satu dosen berdasarkan ID dari database
 func GetSingleLecturer(c *fiber.Ctx) error {
 	db := database.DB.Db
 	// Mengambil ID dosen dari parameter permintaan.
@@ -55,18 +45,16 @@ func GetSingleLecturer(c *fiber.Ctx) error {
 	var lecturer model.Lecturer
 	// Mencari satu dosen dalam database berdasarkan ID.
 	db.Find(&lecturer, "id = ?", id)
-	// Jika dosen tidak ditemukan, mengembalikan respons error dengan status 404.
 	if lecturer.ID == uuid.Nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturer not found", "data": nil})
 	}
-	// Jika berhasil, mengembalikan respons sukses dengan status 200 dan data dosen yang ditemukan.
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturer Found", "data": lecturer})
 }
 
-// UpdateLecturer: Fungsi untuk memperbarui informasi dosen dalam database berdasarkan ID
+// Fungsi untuk memperbarui informasi dosen dalam database berdasarkan ID
 func UpdateLecturer(c *fiber.Ctx) error {
 	type updateLecturer struct {
-		Nama               string `json:"nama"` // informasi dasar dari seorang dosen
+		Nama               string `json:"nama"`
 		Golongan           string `json:"golongan"`
 		Jabatan            string `json:"jabatan"`
 		BidangKeahlian     string `json:"bidang_keahlian"`
@@ -75,15 +63,13 @@ func UpdateLecturer(c *fiber.Ctx) error {
 	}
 	db := database.DB.Db
 	var lecturer model.Lecturer
-	// Mengambil ID dosen dari parameter permintaan.
 	id := c.Params("id")
 	// Mencari satu dosen dalam database berdasarkan ID.
 	db.Find(&lecturer, "id = ?", id)
-	// Jika dosen tidak ditemukan, mengembalikan respons error dengan status 404.
 	if lecturer.ID == uuid.Nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturer not found", "data": nil})
 	}
-	// updateLecturer untuk membaca data yang akan diperbarui
+	// variabel untuk membaca data yang akan diperbarui
 	var updateLecturerData updateLecturer
 	// Membaca body request untuk mendapatkan data yang akan diperbarui
 	err := c.BodyParser(&updateLecturerData)
@@ -111,28 +97,22 @@ func UpdateLecturer(c *fiber.Ctx) error {
 	}
 	// Menyimpan perubahan ke dalam database.
 	db.Save(&lecturer)
-	// Jika berhasil, mengembalikan respons sukses dengan status 200 dan data dosen yang diperbarui.
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturer Found", "data": lecturer})
 }
 
-// DeleteLecturerByID: Fungsi untuk menghapus dosen berdasarkan ID dari database
+// Fungsi untuk menghapus dosen berdasarkan ID dari database
 func DeleteLecturerByID(c *fiber.Ctx) error {
 	db := database.DB.Db
 	var lecturer model.Lecturer
-	// Mengambil ID dosen dari parameter permintaan.
 	id := c.Params("id")
-	// Mencari satu dosen dalam database berdasarkan ID.
 	db.Find(&lecturer, "id = ?", id)
-	// Jika dosen tidak ditemukan, mengembalikan respons error dengan status 404.
 	if lecturer.ID == uuid.Nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturer not found", "data": nil})
 	}
 	// Menghapus dosen dari database berdasarkan ID.
 	err := db.Delete(&lecturer, "id = ?", id).Error
-	// Jika operasi penghapusan gagal, mengembalikan respons error dengan status 404.
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Failed to delete lecturer", "data": nil})
 	}
-	// Jika berhasil, mengembalikan respons sukses dengan status 200.
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturer deleted"})
 }
