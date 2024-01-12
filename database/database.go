@@ -17,7 +17,7 @@ import (
 
 // Struct untuk menyimpan instance database yang dikembalikan oleh GORM setelah terjadi koneksi ke database
 type Dbinstance struct {
-	Db *gorm.DB // properti Db bertipe data pointer ke objek gorm.DB. 
+	Db *gorm.DB // properti Db bertipe data pointer ke objek gorm.DB.
 }
 
 // Variabel DB digunakan untuk menyimpan instance database sehingga dapat diakses dari berbagai bagian aplikasi.
@@ -36,8 +36,8 @@ func Connect() {
 	// mengembalikan informasi koneksi dari file .env dalam bentuk string
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai", config.Config("DB_HOST"), config.Config("DB_USER"), config.Config("DB_PASSWORD"), config.Config("DB_NAME"), port)
 	// Membuat koneksi ke database PostgreSQL menggunakan GORM dengan konfigurasi yang telah disiapkan
-	// fungsi open memerlukan dua parameter: jenis database yang akan digunakan dan konfigurasi tambahan 
-	// db adalah variabel yang menyimpan instance dari objek gorm.DB. Instance ini akan digunakan untuk berinteraksi dengan database, seperti menjalankan query atau melakukan migrasi tabel. 
+	// fungsi open memerlukan dua parameter: jenis database yang akan digunakan dan konfigurasi tambahan
+	// db adalah variabel yang menyimpan instance dari objek gorm.DB. Instance ini akan digunakan untuk berinteraksi dengan database, seperti menjalankan query atau melakukan migrasi tabel.
 	// Jika terjadi kesalahan selama pembukaan koneksi, nilai variabel err akan berisi pesan kesalahan
 	// untuk deklarasi dan penanganan kesalahan sekaligus.
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
@@ -55,7 +55,7 @@ func Connect() {
 	// mencetak pesan log bahwa koneksi ke database telah berhasil dan migrasi tabel sedang berlangsung.
 	log.Println("running migrations")
 	// melakukan migrasi otomatis untuk tabel User menggunakan GORM. Ini akan memastikan bahwa struktur tabel di database sesuai dengan definisi model di aplikasi.
-	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Lecturer{})
 	// Menyimpan instance database dalam variabel DB untuk digunakan di berbagai bagian aplikasi.
 	DB = Dbinstance{
 		Db: db,

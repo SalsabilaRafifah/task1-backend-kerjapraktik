@@ -3,126 +3,136 @@
 package handler
 
 import (
-	"github.com/SalsabilaRafifah/go-fiber-postgres/database"
-	"github.com/SalsabilaRafifah/go-fiber-postgres/model"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	"github.com/SalsabilaRafifah/go-fiber-postgres/database" // menyediakan akses ke database
+	"github.com/SalsabilaRafifah/go-fiber-postgres/model"    // definisi struktur data
+	"github.com/gofiber/fiber/v2"                            // framework web
+	"github.com/google/uuid"                                 // menangani UUID
 )
 
 // c adalah objek konteks Fiber yang digunakan untuk memproses informasi permintaan dan mengirimkan respons balik ke klien.
-// CreateUser: Fungsi untuk membuat pengguna baru dalam database
-func CreateUser(c *fiber.Ctx) error {
+// CreateLecturer: Fungsi untuk membuat pengguna baru dalam database
+func CreateLecturer(c *fiber.Ctx) error {
+	// Mengambil instance database dari package database
 	db := database.DB.Db
-	user := new(model.User)
-	// Membaca body request dan menyimpannya dalam objek user dan mengembalikan error if encountered
-	err := c.BodyParser(user)
+	// Membuat instance baru dari struktur data model.Lecturer yang akan digunakan untuk menyimpan data pengguna dari permintaan.
+	lecturer := new(model.Lecturer)
+	// Membaca body request yang dikirim oleh klien dan mengonversinya menjadi objek Lecturer
+	err := c.BodyParser(lecturer)
+	// Jika parsing body request gagal, mengembalikan respons error dengan status 500.
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
-
-	// Membuat entitas user baru dalam database
-	err = db.Create(&user).Error
+	// Membuat entitas pengguna baru dalam database menggunakan objek model.Lecturer
+	err = db.Create(&lecturer).Error
+	// Jika operasi penciptaan pengguna gagal, mengembalikan respons error dengan status 500.
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create user", "data": err})
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create lecturer", "data": err})
 	}
-	// Mengembalikan response berhasil dengan data user yang baru dibuat
-	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "User has created", "data": user})
+	// Jike berhasil, mengembalikan response sukses dengan status 201 dan data pengguna yang baru dibuat
+	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "Lecturer has created", "data": lecturer})
 }
 
-// Get All Users: Fungsi untuk mendapatkan semua pengguna dari database
-func GetAllUsers(c *fiber.Ctx) error {
+// Get All Lecturers: Fungsi untuk mendapatkan semua pengguna dari database
+func GetAllLecturers(c *fiber.Ctx) error {
+	// Mendapatkan akses ke instance database dan membuat variabel untuk menyimpan daftar pengguna.
 	db := database.DB.Db
-	var users []model.User
-	// find all users in the database
-	db.Find(&users)
-	// If no user found, return an error
-	if len(users) == 0 {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Users not found", "data": nil})
+	var lecturers []model.Lecturer
+	// Mengambil semua pengguna dari database menggunakan db.Find.
+	db.Find(&lecturers)
+	// Jika tidak ada pengguna yang ditemukan, mengembalikan respons error dengan status 404.
+	if len(lecturers) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturers not found", "data": nil})
 	}
-	// return users yang ditemukan
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Users Found", "data": users})
+	// Jika berhasil, mengembalikan respons sukses dengan status 200 dan data pengguna yang ditemukan.
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturers Found", "data": lecturers})
 }
 
-// GetSingleUser: Fungsi untuk mendapatkan satu pengguna berdasarkan ID dari database
-func GetSingleUser(c *fiber.Ctx) error {
+// GetSingleLecturer: Fungsi untuk mendapatkan satu pengguna berdasarkan ID dari database
+func GetSingleLecturer(c *fiber.Ctx) error {
 	db := database.DB.Db
-	// get id dari parameter
+	// Mengambil ID pengguna dari parameter permintaan.
 	id := c.Params("id")
-	var user model.User
-	// find satu pengguna in the database by id
-	db.Find(&user, "id = ?", id)
-	// Jika pengguna tidak ditemukan, mengembalikan error
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	var lecturer model.Lecturer
+	// Mencari satu pengguna dalam database berdasarkan ID.
+	db.Find(&lecturer, "id = ?", id)
+	// Jika pengguna tidak ditemukan, mengembalikan respons error dengan status 404.
+	if lecturer.ID == uuid.Nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturer not found", "data": nil})
 	}
-	// Mengembalikan data pengguna yang ditemukan
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User Found", "data": user})
+	// Jika berhasil, mengembalikan respons sukses dengan status 200 dan data pengguna yang ditemukan.
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturer Found", "data": lecturer})
 }
 
-// UpdateUser: Fungsi untuk memperbarui informasi pengguna dalam database berdasarkan ID
-func UpdateUser(c *fiber.Ctx) error {
-	type updateUser struct {
-		Nama               string    `json:"nama"`       // informasi dasar dari seorang dosen
-		Golongan           string    `json:"golongan"`
-		Jabatan            string    `json:"jabatan"`
-		BidangKeahlian     string    `json:"bidang_keahlian"`
-		PendidikanTerakhir string    `json:"pendidikan_terakhir"`
-		Email              string    `json:"email"`
+// UpdateLecturer: Fungsi untuk memperbarui informasi pengguna dalam database berdasarkan ID
+func UpdateLecturer(c *fiber.Ctx) error {
+	type updateLecturer struct {
+		Nama               string `json:"nama"` // informasi dasar dari seorang dosen
+		Golongan           string `json:"golongan"`
+		Jabatan            string `json:"jabatan"`
+		BidangKeahlian     string `json:"bidang_keahlian"`
+		PendidikanTerakhir string `json:"pendidikan_terakhir"`
+		Email              string `json:"email"`
 	}
 	db := database.DB.Db
-	var user model.User
-	// get id params
+	var lecturer model.Lecturer
+	// Mengambil ID pengguna dari parameter permintaan.
 	id := c.Params("id")
-	// find satu pengguna in the database by id
-	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	// Mencari satu pengguna dalam database berdasarkan ID.
+	db.Find(&lecturer, "id = ?", id)
+	// Jika pengguna tidak ditemukan, mengembalikan respons error dengan status 404.
+	if lecturer.ID == uuid.Nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturer not found", "data": nil})
 	}
-	var updateUserData updateUser
+	// updateLecturer untuk membaca data yang akan diperbarui
+	var updateLecturerData updateLecturer
 	// Membaca body request untuk mendapatkan data yang akan diperbarui
-	err := c.BodyParser(&updateUserData)
+	err := c.BodyParser(&updateLecturerData)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
-	// Update fields
-	if updateUserData.Nama != "" {
-		user.Nama = updateUserData.Nama
+	// Memperbarui field pengguna sesuai dengan data yang diterima.
+	if updateLecturerData.Nama != "" {
+		lecturer.Nama = updateLecturerData.Nama
 	}
-	if updateUserData.Golongan != "" {
-		user.Golongan = updateUserData.Golongan
+	if updateLecturerData.Golongan != "" {
+		lecturer.Golongan = updateLecturerData.Golongan
 	}
-	if updateUserData.Jabatan != "" {
-		user.Jabatan = updateUserData.Jabatan
+	if updateLecturerData.Jabatan != "" {
+		lecturer.Jabatan = updateLecturerData.Jabatan
 	}
-	if updateUserData.BidangKeahlian != "" {
-		user.BidangKeahlian = updateUserData.BidangKeahlian
+	if updateLecturerData.BidangKeahlian != "" {
+		lecturer.BidangKeahlian = updateLecturerData.BidangKeahlian
 	}
-	if updateUserData.PendidikanTerakhir != "" {
-		user.PendidikanTerakhir= updateUserData.PendidikanTerakhir
+	if updateLecturerData.PendidikanTerakhir != "" {
+		lecturer.PendidikanTerakhir = updateLecturerData.PendidikanTerakhir
 	}
-	if updateUserData.Email != "" {
-		user.Email = updateUserData.Email
+	if updateLecturerData.Email != "" {
+		lecturer.Email = updateLecturerData.Email
 	}
-	// Save the Changes
-	db.Save(&user)
-	// Return the updated user
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "users Found", "data": user})
+	// Menyimpan perubahan ke dalam database.
+	db.Save(&lecturer)
+	// Jika berhasil, mengembalikan respons sukses dengan status 200 dan data pengguna yang diperbarui.
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturer Found", "data": lecturer})
 }
 
-// DeleteUserByID: Fungsi untuk menghapus pengguna berdasarkan ID dari database
-func DeleteUserByID(c *fiber.Ctx) error {
+// DeleteLecturerByID: Fungsi untuk menghapus pengguna berdasarkan ID dari database
+func DeleteLecturerByID(c *fiber.Ctx) error {
 	db := database.DB.Db
-	var user model.User
-	// get id params
+	var lecturer model.Lecturer
+	// Mengambil ID pengguna dari parameter permintaan.
 	id := c.Params("id")
-	// find single user in the database by id
-	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	// Mencari satu pengguna dalam database berdasarkan ID.
+	db.Find(&lecturer, "id = ?", id)
+	// Jika pengguna tidak ditemukan, mengembalikan respons error dengan status 404.
+	if lecturer.ID == uuid.Nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Lecturer not found", "data": nil})
 	}
-	err := db.Delete(&user, "id = ?", id).Error
+	// Menghapus pengguna dari database berdasarkan ID.
+	err := db.Delete(&lecturer, "id = ?", id).Error
+	// Jika operasi penghapusan gagal, mengembalikan respons error dengan status 404.
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Failed to delete user", "data": nil})
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Failed to delete lecturer", "data": nil})
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User deleted"})
+	// Jika berhasil, mengembalikan respons sukses dengan status 200.
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Lecturer deleted"})
 }

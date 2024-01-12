@@ -1,3 +1,5 @@
+// file berisi informasi dasar tentang modul dann dependensi yang akan ditambahkan
+
 module github.com/SalsabilaRafifah/go-fiber-postgres
 
 go 1.21.5

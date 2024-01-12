@@ -8,8 +8,8 @@ import (
 )
 
 // struktur data yang mendefinisikan entitas pengguna dengan berbagai field
-type User struct {
-	gorm.Model         // Menambahkan field-field standar yang biasanya digunakan oleh GORM, seperti ID, CreatedAt, UpdatedAt, dan DeletedAt.
+type Lecturer struct {
+	gorm.Model                   // Menambahkan field-field standar yang biasanya digunakan oleh GORM, seperti ID, CreatedAt, UpdatedAt, dan DeletedAt.
 	ID                 uuid.UUID `gorm:"type:uuid;"` // UUID yang digunakan sebagai identifikasi unik untuk setiap pengguna
 	Nama               string    `json:"nama"`       // informasi dasar dari seorang dosen
 	Golongan           string    `json:"golongan"`
@@ -19,15 +19,15 @@ type User struct {
 	Email              string    `json:"email"`
 }
 
-// Users adalah struktur yang digunakan untuk menampung sebuah array berisi kumpulan data dari pengguna. Struktur ini mencakup field Users yang merupakan slice dari struktur User.
-type Users struct {
-	Users []User `json:"users"`
+// Lecturers adalah struktur yang digunakan untuk menampung sebuah array berisi kumpulan data dari pengguna. Struktur ini mencakup field Users yang merupakan slice dari struktur User.
+type Lecturers struct {
+	Lecturers []Lecturer `json:"lecturers"`
 }
 
 // fungsi hook GORM yang akan dipanggil sebelum entitas User disimpan dalam database.
 // kegunaan : menghasilkan UUID baru (versi 4) dan mengatur nilai ID pengguna sebelum entitas dibuat.
-func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
-	user.ID = uuid.New()
+func (lecturer *Lecturer) BeforeCreate(tx *gorm.DB) (err error) {
+	lecturer.ID = uuid.New()
 	return
 }
 
